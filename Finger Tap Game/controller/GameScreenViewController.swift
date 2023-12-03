@@ -1,19 +1,18 @@
 //
-//  ViewController.swift
+//  GameScreenViewController.swift
 //  Finger Tap Game
 //
-//  Created by Tharin Zaman on 20/11/2023.
+//  Created by Tharin Zaman on 21/11/2023.
 //
 
 import UIKit
 
-class ViewController: UIViewController {
+class GameScreenViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         // Do any additional setup after loading the view.
     }
 
-
 }
-
