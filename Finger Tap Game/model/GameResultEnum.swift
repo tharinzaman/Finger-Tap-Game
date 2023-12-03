@@ -6,3 +6,8 @@
 //
 
 import Foundation
+
+enum GameResultEnum {
+    case won
+    case lost
+}
