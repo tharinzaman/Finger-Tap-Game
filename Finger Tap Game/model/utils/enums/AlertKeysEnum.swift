@@ -6,3 +6,9 @@
 //
 
 import Foundation
+
+enum AlertKeysEnum {
+    case title
+    case message
+    case action
+}

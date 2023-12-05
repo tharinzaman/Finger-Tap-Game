@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum GameResultEnum {
-    case won
-    case lost
+public enum GameResultEnum: String {
+    case won = "won"
+    case lost = "lost"
 }
