@@ -9,8 +9,11 @@ import UIKit
 
 class FirstScreenViewController: UIViewController {
     
+    let notificationHandler = NotificationHandler()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        notificationHandler.checkForPermissions()
     }
 
 }
