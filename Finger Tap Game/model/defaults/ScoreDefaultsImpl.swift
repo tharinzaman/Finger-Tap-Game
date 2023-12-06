@@ -7,9 +7,21 @@
 
 import Foundation
 
-struct ScoreDefaults {
-    
+struct ScoreDefaultsImpl: ScoreDefaults {
+
     let defaults = UserDefaults.standard
     
+    func getHighestScore() -> Int {
+        return defaults.integer(
+            forKey: Constants.HIGHEST_SCORE_KEY
+        )
+    }
+    
+    func setNewHighestScore(_ newScore: Int) {
+        defaults.set(
+            newScore,
+            forKey: Constants.HIGHEST_SCORE_KEY
+        )
+    }
     
 }

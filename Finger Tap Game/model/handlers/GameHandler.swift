@@ -36,14 +36,14 @@ struct GameHandler {
         displayAlert(
             gameResult
         )
-        resetVariables()
-        resetLabelsAndButtons()
         addToCoreData(
             Date.now,
             Int64(calculateTimeTaken()),
             Int64(calculateTapsCompleted()),
             gameResult
         )
+        resetVariables()
+        resetLabelsAndButtons()
     }
     
     mutating func hasTimerEnded() -> Bool {
@@ -78,6 +78,10 @@ struct GameHandler {
         } else {
             return .lost
         }
+    }
+    
+    func fetchHighstScore() -> Int {
+        return scoreDefaults.getHighestScore()
     }
     
 }

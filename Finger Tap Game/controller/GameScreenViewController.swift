@@ -13,24 +13,33 @@ class GameScreenViewController: UIViewController {
     @IBOutlet weak var tapButton: UIButton!
     @IBOutlet weak var startButton: UIButton!
     
-    var model = GameModel()
+    var gameHandler = GameHandler()
+    let coreDataHandler = CoreDataHandler()
+    
+    let context = (
+        UIApplication.shared.delegate as! AppDelegate
+    ).persistentContainer.viewContext
     var timer = Timer()
-
+    
+    var resetLabelsAndButtons: () -> Void = {
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         disableButton(
             tapButton
         )
+        resetLabels()
     }
     
-    @IBAction func gameStarted(
+    @IBAction func startGame(
         _ sender: UIButton
     ) {
         timer = Timer.scheduledTimer(
             timeInterval: 1.0,
             target: self,
             selector: #selector(
-                updateTimerLabel
+                timerDecremented
             ),
             userInfo: nil,
             repeats: true
@@ -47,56 +56,80 @@ class GameScreenViewController: UIViewController {
         _ sender: UIButton
     ) {
         // If there are still taps remaining then update the label
-        if model.areTapsRemaining() {
+        if gameHandler.areTapsRemaining() {
             tapsRemainingLabel.text = String(
-                model.tapsRemaining
+                gameHandler.tapsRemaining
             )
         }
         // If there are no taps remaining, end the game
         else {
-            endGame(
-                gameResult: model.tapsFinishedCheckIfGameWon()
-            )
+            gameEnded(decremeneted: .tap)
         }
     }
     
-    @objc func updateTimerLabel() {
+    @objc func timerDecremented() {
         // If the timer hasn't ended yet then update the label
-        if !model.hasTimerEnded() {
+        if !gameHandler.hasTimerEnded() {
             timerLabel.text = String(
-                model.secondsRemaining
+                gameHandler.secondsRemaining
             )
         }
         // If the timer has ended, end the game
         else {
-            endGame(
-                gameResult: model.timerEndedCheckIfGameWon()
-            )
+            gameEnded(decremeneted: .timer)
         }
     }
     
-    private func endGame(
-        gameResult: GameResultEnum
-    ) {
-        model.gameEnded(
+    private func gameEnded(decremeneted: DecrementEnum) {
+        
+        var gameResult: GameResultEnum
+        if decremeneted == .tap {
+            gameResult = gameHandler.tapsFinishedCheckIfGameWon()
+        } else {
+            gameResult = gameHandler.timerEndedCheckIfGameWon()
+        }
+    
+        gameHandler.gameEnded(
             timer: self.timer,
-            gameResult: gameResult
+            gameResult: gameResult,
+            resetLabelsAndButtons: {
+                [self] in
+                resetLabels()
+                disableButton(
+                    tapButton
+                )
+                enableButton(
+                    startButton
+                )
+                
+            },
+            displayAlert: {
+                gameResult in
+                self.createAlert(
+                    gameResult: gameResult
+                )
+            },
+            addToCoreData: {
+                date,
+                timeTaken,
+                tapsCompleted,
+                gameResult in
+                coreDataHandler.addFingerTapGameAttempt(context: context, date: date, timeTaken: timeTaken, tapsCompleted: tapsCompleted, gameResult: gameResult)
+            }
         )
-            disableButton(
-                tapButton
-            )
-            enableButton(
-                startButton
-            )
-            resetLabels()
     }
+    
+}
+
+// MARK: - This extension contains functions that are used for the UI
+extension GameScreenViewController {
     
     private func resetLabels() {
         timerLabel.text = String(
-            model.secondsRemaining
+            Constants.TIMER_DURATION
         )
         tapsRemainingLabel.text = String(
-            model.tapsRemaining
+            Constants.TAPS_AMOUNT
         )
     }
     
@@ -117,5 +150,57 @@ class GameScreenViewController: UIViewController {
     private func roundUIElementCorner() {
         // Implement later when focus is on UI
     }
-
+    
+    private func createAlert(
+        gameResult: GameResultEnum
+    ) {
+        let strings = createAlertStrings(
+            gameResult: gameResult
+        )
+        let alert = UIAlertController(
+            title: strings[.title],
+            message: strings[.message],
+            preferredStyle: .alert
+        )
+        alert.addAction(
+            UIAlertAction(title: NSLocalizedString(
+                strings[.action]!,
+                comment: "Default action"
+            ),
+                          style: .default,
+                          handler: {
+                              _ in
+                              NSLog(
+                                "The \"OK\" alert occured."
+                              )
+                          })
+        )
+        self.present(
+            alert,
+            animated: true,
+            completion: nil
+        )
+    }
+    
+    private func createAlertStrings(
+        gameResult: GameResultEnum
+    ) -> Dictionary<
+        AlertKeysEnum,
+        String
+    > {
+        if gameResult == .won {
+            return [
+                .title: Strings.WON_TITLE,
+                .message: Strings.WON_MESSAGE,
+                .action: Strings.WON_ACTION
+            ]
+        } else {
+            return [
+                .title: Strings.LOST_TITLE,
+                .message: Strings.LOST_MESSAGE,
+                .action: Strings.LOST_ACTION
+            ]
+        }
+    }
+    
 }

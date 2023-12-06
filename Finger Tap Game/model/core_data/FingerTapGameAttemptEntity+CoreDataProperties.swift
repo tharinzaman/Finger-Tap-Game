@@ -13,16 +13,27 @@ import CoreData
 extension FingerTapGameAttemptEntity {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<FingerTapGameAttemptEntity> {
-        return NSFetchRequest<FingerTapGameAttemptEntity>(entityName: "FingerTapGameAttemptEntity")
+        return NSFetchRequest<FingerTapGameAttemptEntity>(
+            entityName: "FingerTapGameAttemptEntity"
+        )
     }
-
-    @NSManaged public var date: Date?
+    
+    @NSManaged public var date: Date
+    @NSManaged public var timeTaken: Int64
     @NSManaged public var tapsCompleted: Int64
-    @NSManaged public var gameResult: GameResultEnum?
-    @NSManaged public var tapsPerSecond: Int64
-
+    
+    @NSManaged public var gameResultAsString: String
+    var gameResult: GameResultEnum {
+        get {
+            return GameResultEnum(
+                rawValue: self.gameResultAsString
+            ) ?? .lost
+        }
+        set {
+            self.gameResultAsString = newValue.rawValue
+        }
+    }
 }
 
 extension FingerTapGameAttemptEntity : Identifiable {
-
 }

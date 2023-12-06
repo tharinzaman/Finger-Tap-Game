@@ -11,7 +11,8 @@ import CoreData
 struct CoreDataHandler {
     
     func fetchFingerTapGameAttempts(
-        context: NSManagedObjectContext
+        context: NSManagedObjectContext,
+        reloadData: @escaping () -> Void
     ) -> [FingerTapGameAttemptEntity] {
         do {
             let request = FingerTapGameAttemptEntity.fetchRequest() as NSFetchRequest<FingerTapGameAttemptEntity>
@@ -23,6 +24,7 @@ struct CoreDataHandler {
             return try context.fetch(
                 request
             )
+            reloadData()
         } catch {
             return []
         }
@@ -43,7 +45,10 @@ struct CoreDataHandler {
         do {
             try context.save()
             print(
-                "Saved attempt"
+                String(timeTaken)
+            )
+            print(
+                String(tapsCompleted)
             )
         } catch {
             print(

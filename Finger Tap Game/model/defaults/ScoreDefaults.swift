@@ -6,3 +6,8 @@
 //
 
 import Foundation
+
+protocol ScoreDefaults {
+    func getHighestScore() -> Int
+    func setNewHighestScore(_ newScore: Int)
+}
